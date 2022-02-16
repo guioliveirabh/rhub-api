@@ -1,12 +1,8 @@
 model:
 
-  User:
+  UserWithoutUUID:
     type: object
     properties:
-      id:
-        allOf:
-          - $ref: 'common.yml#/model/UUID'
-          - readOnly: true
       username:
         type: string
       password:
@@ -43,13 +39,19 @@ model:
       totp: false
       username: testuser1
 
+  User:
+    allOf:
+      - $ref: '#/model/UserWithoutUUID'
+      - type: object
+        properties:
+          id:
+            $ref: 'common.yml#/model/ReadOnlyUUID'
+
   Group:
     type: object
     properties:
       id:
-        allOf:
-          - $ref: 'common.yml#/model/UUID'
-          - readOnly: true
+        $ref: 'common.yml#/model/ReadOnlyUUID'
       name:
         type: string
       attributes:
@@ -81,9 +83,7 @@ model:
     type: object
     properties:
       id:
-        allOf:
-          - $ref: 'common.yml#/model/UUID'
-          - readOnly: true
+        $ref: 'common.yml#/model/ReadOnlyUUID'
       name:
         type: string
       attributes:
@@ -252,10 +252,10 @@ endpoints:
       content:
         application/json:
           schema:
-            type: object
             allOf:
-              - $ref: '#/model/User'
-              - required:
+              - $ref: '#/model/UserWithoutUUID'
+              - type: object
+                required:
                   - username
                   - email
           example:
@@ -319,7 +319,7 @@ endpoints:
       content:
         application/json:
           schema:
-            $ref: '#/model/User'
+            $ref: '#/model/UserWithoutUUID'
           example:
             email: alice-new@example.com
             lastName: New

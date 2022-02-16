@@ -20,13 +20,9 @@ model:
         minimum: 0
         nullable: true
 
-  Region:
+  RegionWithoutID:
     type: object
     properties:
-      id:
-        allOf:
-          - $ref: 'common.yml#/model/ID'
-          - readOnly: true
       name:
         type: string
         maxLength: 32
@@ -197,6 +193,14 @@ model:
         maxLength: 256
         example: https://download.example.com
 
+  Region:
+    allOf:
+      - $ref: '#/model/RegionWithoutID'
+      - type: object
+        properties:
+          id:
+            $ref: 'common.yml#/model/ReadOnlyID'
+
   ClusterStatus:
     type: string
     nullable: true
@@ -232,13 +236,9 @@ model:
       - Provisioning Queued
       - Queued
 
-  Cluster:
+  ClusterWithoutID:
     type: object
     properties:
-      id:
-        allOf:
-          - $ref: 'common.yml#/model/ID'
-          - readOnly: true
       name:
         type: string
         pattern: '^[a-z0-9]+$'
@@ -314,13 +314,19 @@ model:
       product_params:
         type: object
 
+  Cluster:
+    allOf:
+      - $ref: '#/model/ClusterWithoutID'
+      - type: object
+        properties:
+          id:
+            $ref: 'common.yml#/model/ReadOnlyID'
+
   ClusterEvent:
     type: object
     properties:
       id:
-        allOf:
-          - $ref: 'common.yml#/model/ID'
-          - readOnly: true
+        $ref: 'common.yml#/model/ReadOnlyID'
       date:
         type: string
         format: date-time
@@ -334,9 +340,7 @@ model:
         nullable: true
         readOnly: true
       cluster_id:
-        allOf:
-          - $ref: 'common.yml#/model/ID'
-          - readOnly: true
+        $ref: 'common.yml#/model/ReadOnlyID'
     oneOf:
       - properties:
           type:
@@ -379,17 +383,9 @@ model:
             format: date-time
             nullable: true
 
-  ClusterHost:
+  ClusterHostWithoutID:
     type: object
     properties:
-      id:
-        allOf:
-          - $ref: 'common.yml#/model/ID'
-          - readOnly: true
-      cluster_id:
-        allOf:
-          - $ref: 'common.yml#/model/ID'
-          - readOnly: true
       fqdn:
         type: string
         maxLength: 256
@@ -415,13 +411,19 @@ model:
             - type: string
               format: ipv6
 
-  Product:
+  ClusterHost:
+    allOf:
+      - $ref: '#/model/ClusterHostWithoutID'
+      - type: object
+        properties:
+          id:
+            $ref: 'common.yml#/model/ReadOnlyID'
+          cluster_id:
+            $ref: 'common.yml#/model/ReadOnlyID'
+
+  ProductWithoutID:
     type: object
     properties:
-      id:
-        allOf:
-          - $ref: 'common.yml#/model/ID'
-          - readOnly: true
       name:
         type: string
         maxLength: 64
@@ -541,7 +543,13 @@ model:
             - variable
             - required
             - type
-
+  Product:
+    allOf:
+      - $ref: '#/model/ProductWithoutID'
+      - type: object
+        properties:
+          id:
+            $ref: 'common.yml#/model/ReadOnlyID'
 
 parameters:
 
@@ -664,10 +672,10 @@ endpoints:
       content:
         application/json:
           schema:
-            type: object
             allOf:
-              - $ref: '#/model/Region'
-              - required:
+              - $ref: '#/model/RegionWithoutID'
+              - type: object
+                required:
                   - dns_server
                   - download_server
                   - name
@@ -675,7 +683,7 @@ endpoints:
                   - satellite
                   - tower_id
                   - vault_server
-              - properties:
+                properties:
                   openstack:
                     required:
                       - credentials
@@ -733,7 +741,7 @@ endpoints:
       content:
         application/json:
           schema:
-            $ref: '#/model/Region'
+            $ref: '#/model/RegionWithoutID'
           example:
             lifespan_length: 60
             quota:
@@ -986,10 +994,10 @@ endpoints:
       content:
         application/json:
           schema:
-            type: object
             allOf:
-              - $ref: '#/model/Product'
-              - required:
+              - $ref: '#/model/ProductWithoutID'
+              - type: object
+                required:
                   - name
                   - tower_template_name_create
                   - tower_template_name_delete
@@ -1033,7 +1041,7 @@ endpoints:
       content:
         application/json:
           schema:
-            $ref: '#/model/Product'
+            $ref: '#/model/ProductWithoutID'
     responses:
       '200':
         description: Success
@@ -1243,7 +1251,7 @@ endpoints:
         application/json:
           schema:
             allOf:
-              - $ref: '#/model/Cluster'
+              - $ref: '#/model/ClusterWithoutID'
               - required:
                   - name
                   - region_id
@@ -1292,7 +1300,7 @@ endpoints:
       content:
         application/json:
           schema:
-            $ref: '#/model/Cluster'
+            $ref: '#/model/ClusterWithoutID'
     responses:
       '200':
         description: Cluster
@@ -1409,8 +1417,9 @@ endpoints:
             type: array
             items:
               allOf:
-                - $ref: '#/model/ClusterHost'
-                - required:
+                - $ref: '#/model/ClusterHostWithoutID'
+                - type: object
+                  required:
                     - fqdn
                     - ipaddr
     responses:

@@ -1,13 +1,8 @@
 model:
 
-  Policy:
+  PolicyWithoutID:
     type: object
     properties:
-      id:
-        description: Internal ID
-        allOf:
-          - $ref: 'common.yml#/model/ID'
-          - readOnly: true
       name:
         description: Name
         type: string
@@ -47,14 +42,19 @@ model:
             nullable: true
             maxLength: 4
 
+  Policy:
+    allOf:
+      - $ref: '#/model/PolicyWithoutID'
+      - type: object
+        properties:
+          id:
+            $ref: 'common.yml#/model/ReadOnlyID'
+
   BriefPolicy:
     type: object
     properties:
       id:
-        description: Internal ID
-        allOf:
-          - $ref: 'common.yml#/model/ID'
-          - readOnly: true
+        $ref: 'common.yml#/model/ReadOnlyID'
       name:
         description: Name
         type: string
@@ -148,10 +148,10 @@ endpoints:
       content:
         application/json:
           schema:
-            type: object
             allOf:
-              - $ref: '#/model/Policy'
-              - required:
+              - $ref: '#/model/PolicyWithoutID'
+              - type: object
+                required:
                   - department
                   - name
           example:
@@ -203,7 +203,7 @@ endpoints:
       content:
         application/json:
           schema:
-            $ref: '#/model/Policy'
+            $ref: '#/model/PolicyWithoutID'
           example:
             constraint:
               location: RDU2

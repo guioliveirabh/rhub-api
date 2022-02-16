@@ -4,7 +4,17 @@ model:
     type: integer
     minimum: 1
 
+  ReadOnlyID:
+    readOnly: true
+    type: integer
+    minimum: 1
+
   UUID:
+    type: string
+    format: uuid
+
+  ReadOnlyUUID:
+    readOnly: true
     type: string
     format: uuid
 

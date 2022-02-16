@@ -1,12 +1,8 @@
 model:
 
-  Server:
+  ServerWithoutID:
     type: object
     properties:
-      id:
-        allOf:
-          - $ref: 'common.yml#/model/ID'
-          - readOnly: true
       name:
         type: string
         maxLength: 32
@@ -24,14 +20,18 @@ model:
       credentials:
         type: string
         description: Tower credentials path (Vault mount/path)
-  Template:
+
+  Server:
+    allOf:
+      - $ref: '#/model/ServerWithoutID'
+      - type: object
+        properties:
+          id:
+            $ref: 'common.yml#/model/ReadOnlyID'
+
+  TemplateWithoutID:
     type: object
     properties:
-      id:
-        description: Internal ID
-        allOf:
-          - $ref: 'common.yml#/model/ID'
-          - readOnly: true
       name:
         type: string
         maxLength: 256
@@ -46,14 +46,20 @@ model:
       tower_template_is_workflow:
         description: Is template workflow?
         type: boolean
+
+  Template:
+    allOf:
+      - $ref: '#/model/TemplateWithoutID'
+      - type: object
+        properties:
+          id:
+            $ref: 'common.yml#/model/ReadOnlyID'
+
   Job:
     type: object
     properties:
       id:
-        description: Internal ID
-        allOf:
-          - $ref: 'common.yml#/model/ID'
-          - readOnly: true
+        $ref: 'common.yml#/model/ReadOnlyID'
       template_id:
         description: Reference to Tower template (Template.id)
         $ref: 'common.yml#/model/ID'
@@ -267,10 +273,10 @@ endpoints:
       content:
         application/json:
           schema:
-            type: object
             allOf:
-              - $ref: '#/model/Server'
-              - required:
+              - $ref: '#/model/ServerWithoutID'
+              - type: object
+                required:
                   - credentials
                   - name
                   - url
@@ -320,7 +326,7 @@ endpoints:
       content:
         application/json:
           schema:
-            $ref: '#/model/Server'
+            $ref: '#/model/ServerWithoutID'
           example:
             description: Default Tower server
     responses:
@@ -419,10 +425,10 @@ endpoints:
       content:
         application/json:
           schema:
-            type: object
             allOf:
-              - $ref: '#/model/Template'
-              - required:
+              - $ref: '#/model/TemplateWithoutID'
+              - type: object
+                required:
                   - name
                   - server_id
                   - tower_template_id
@@ -480,7 +486,7 @@ endpoints:
       content:
         application/json:
           schema:
-            $ref: '#/model/Template'
+            $ref: '#/model/TemplateWithoutID'
           example:
             description: Template to create a new project in OpenStack
     responses:

@@ -1,12 +1,8 @@
 model:
 
-  CronJob:
+  CronJobWithoutID:
     type: object
     properties:
-      id:
-        allOf:
-          - $ref: 'common.yml#/model/ID'
-          - readOnly: true
       name:
         type: string
         maxLength: 128
@@ -33,6 +29,13 @@ model:
         nullable: true
         readOnly: true
 
+  CronJob:
+    allOf:
+      - $ref: '#/model/CronJobWithoutID'
+      - type: object
+        properties:
+          id:
+            $ref: 'common.yml#/model/ReadOnlyID'
 parameters:
 
   cron_job_id:
@@ -113,10 +116,10 @@ endpoints:
       content:
         application/json:
           schema:
-            type: object
             allOf:
-              - $ref: '#/model/CronJob'
-              - required:
+              - $ref: '#/model/CronJobWithoutID'
+              - type: object
+                required:
                   - job_name
                   - name
                   - time_expr
@@ -161,7 +164,7 @@ endpoints:
       content:
         application/json:
           schema:
-            $ref: '#/model/CronJob'
+            $ref: '#/model/CronJobWithoutID'
     responses:
       '200':
         description: Success
